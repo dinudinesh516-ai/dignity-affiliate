@@ -15,6 +15,7 @@ $pref = $_POST['preferred_contact'] ?? 'whatsapp';
 <div class="mb-3">
   <label class="form-label" for="phone"><?= $you ? 'Phone / WhatsApp' : 'Client phone / WhatsApp' ?></label>
   <?= phone_input('phone', old('phone'), ['required' => true, 'autocomplete' => $you ? 'tel-national' : 'off']) ?>
+  <div class="dup-msg" data-dup-check="<?= e($formMode) ?>" data-dup-url="<?= e(url('check-phone.php')) ?>" aria-live="polite"></div>
 </div>
 <div class="mb-3">
   <label class="form-label" for="email"><?= $you ? 'Email' : 'Client email' ?> <span class="text-muted fw-normal">(optional)</span></label>

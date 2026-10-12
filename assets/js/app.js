@@ -218,3 +218,58 @@ document.addEventListener('click', function (e) {
   });
   if (location.hash === '#details' || location.hash === '#editBox') go(location.hash);
 })();
+
+// Instant "already registered?" check on the client / referral phone field
+(function () {
+  document.querySelectorAll('.dup-msg[data-dup-check]').forEach(function (box) {
+    var mode = box.getAttribute('data-dup-check');          // client | agent | admin
+    var group = box.parentNode.querySelector('.phone-group');
+    if (!group) return;
+    var input = group.querySelector('input[type=tel]');
+    var cc = group.querySelector('select[data-cc-select]');
+    var form = box.closest('form');
+    var submit = form ? form.querySelector('button.btn-lg, button[type=submit]') : null;
+    var timer = null, last = '';
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function setBlocked(on) {
+      if (!submit) return;
+      submit.disabled = on;
+      submit.classList.toggle('opacity-50', on);
+    }
+    function show(html, cls) {
+      box.innerHTML = html ? '<div class="alert ' + cls + ' small mt-2 mb-0">' + html + '</div>' : '';
+    }
+    function check() {
+      var digits = (input.value || '').replace(/\D/g, '');
+      var key = (cc ? cc.value : '') + '|' + digits;
+      if (digits.length < 6) { last = ''; show(''); setBlocked(false); return; }
+      if (key === last) return;
+      last = key;
+      var url = box.getAttribute('data-dup-url') + '?cc=' + encodeURIComponent(cc ? cc.value : '') + '&phone=' + encodeURIComponent(input.value);
+      fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+        if (key !== last) return; // user kept typing
+        if (!d.exists) { show(''); setBlocked(false); return; }
+        if (mode === 'client') {
+          show('<i class="bi bi-check-circle me-1"></i><strong>Your details already exist with us.</strong> Our team will contact you soon — there is no need to submit again.', 'alert-success');
+          setBlocked(true);
+        } else if (mode === 'agent') {
+          show(d.mine
+            ? '<i class="bi bi-info-circle me-1"></i>You have already referred this client — they are in your referrals list.'
+            : '<i class="bi bi-exclamation-triangle me-1"></i>This client has already been referred by another agent, so they cannot be referred again.', 'alert-warning');
+          setBlocked(true);
+        } else {
+          show('<i class="bi bi-exclamation-triangle me-1"></i>This client already exists: <strong>' + esc(d.name) + '</strong>' +
+               (d.agent ? ' (referred by ' + esc(d.agent) + ')' : ' (direct client)') +
+               (d.url ? ' — <a class="alert-link" href="' + esc(d.url) + '">open client</a>' : ''), 'alert-warning');
+          setBlocked(true);
+        }
+      }).catch(function () { /* network issue: let the server-side check handle it */ });
+    }
+    function later() { clearTimeout(timer); timer = setTimeout(check, 500); }
+    input.addEventListener('input', later);
+    input.addEventListener('blur', check);
+    if (cc) cc.addEventListener('change', function () { last = ''; check(); });
+    if (input.value) check();
+  });
+})();
