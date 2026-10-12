@@ -1,0 +1,20 @@
+# Dignity Affiliate
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Force HTTPS in production (Cloudways terminates SSL at Nginx and forwards the header)
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1) [NC]
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Pretty referral links: /r/DJABC123  →  r.php?c=DJABC123
+  RewriteRule ^r/([A-Za-z0-9]+)/?$ r.php?c=$1 [L,QSA]
+</IfModule>
+
+# Block direct access to internals
+<FilesMatch "^(config\.php|.*\.sql|.*\.md|.*\.zip)$">
+  Require all denied
+</FilesMatch>

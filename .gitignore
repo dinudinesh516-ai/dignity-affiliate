@@ -1,0 +1,38 @@
+# =====================================================================
+#  Never commit secrets or personal data. This repository is PUBLIC.
+# =====================================================================
+
+# App configuration: database credentials, Brevo API key, sender email
+# (use config.sample.php as the template)
+config.php
+config.local.php
+*.env
+.env
+.env.*
+
+# Real team names / phone numbers / emails shown on the public pages
+# (use includes/brand_data.sample.php as the template)
+includes/brand_data.php
+
+# Runtime data: saved email previews, logs, uploads, sessions
+storage/
+*.log
+
+# Database dumps / backups (would contain client & agent data)
+*.sql.gz
+*.sql.zip
+backup*/
+backups/
+dump*.sql
+*.bak
+
+# Deployment packages and local screenshots (may contain config / real data)
+*.zip
+Claude outputs/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
