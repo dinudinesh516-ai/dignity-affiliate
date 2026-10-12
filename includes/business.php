@@ -47,6 +47,8 @@ const INTEREST_OPTIONS = ['Engagement Ring', 'Wedding Band', 'Rings', 'Necklace'
  */
 function create_referral(array $in, ?array $agent, string $source, bool $notifyAdmin = true): array
 {
+    // Wording: "you" when the client fills the form themselves (QR code / self-registration)
+    $selfForm = in_array($source, ['qr', 'self'], true);
     $name  = trim((string)($in['full_name'] ?? ''));
     $phone = trim((string)($in['phone'] ?? ''));
     $email = trim((string)($in['email'] ?? ''));
@@ -55,13 +57,13 @@ function create_referral(array $in, ?array $agent, string $source, bool $notifyA
     $budget  = trim((string)($in['budget'] ?? ''));
     $pref    = in_array($in['preferred_contact'] ?? '', ['whatsapp', 'call', 'email'], true) ? $in['preferred_contact'] : 'whatsapp';
 
-    if ($name === '' || mb_strlen($name) > 120) return ['ok' => false, 'error' => 'Please enter the full name.'];
+    if ($name === '' || mb_strlen($name) > 120) return ['ok' => false, 'error' => ($selfForm ? 'Please enter your full name.' : 'Please enter the client\'s full name.')];
     $pk = phone_key($phone);
     if (strlen($pk) < 8) return ['ok' => false, 'error' => 'Please enter a valid phone number.'];
     if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) return ['ok' => false, 'error' => 'Please enter a valid email address.'];
     if ($pref === 'email' && $email === '') return ['ok' => false, 'error' => 'Please add an email address if email is the preferred contact.'];
-    if (!$interests && $looking === '') return ['ok' => false, 'error' => 'Please tell us what the client is looking for.'];
-    if (in_array('Other', $interests, true) && $looking === '') return ['ok' => false, 'error' => 'You selected "Other" — please describe what is needed in the note.'];
+    if (!$interests && $looking === '') return ['ok' => false, 'error' => $selfForm ? 'Please tell us what you are looking for.' : 'Please tell us what the client is looking for.'];
+    if (in_array('Other', $interests, true) && $looking === '') return ['ok' => false, 'error' => ($selfForm ? 'You selected "Other" — please describe what you are looking for in the note.' : 'You selected "Other" — please describe what the client needs in the note.')];
 
     $ek = $email !== '' ? strtolower($email) : null;
     $dup = row('SELECT * FROM clients WHERE phone_key = ? OR (email_key IS NOT NULL AND email_key = ?) LIMIT 1', [$pk, $ek ?? '__none__']);

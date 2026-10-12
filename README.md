@@ -42,6 +42,15 @@ The admin account is created in the installer form — no password is stored in 
 6. Sign in, open **Settings** → *Send test email to me* to confirm Brevo works.
 7. Change the admin password under *My account*.
 
+## Automatic deployment (GitHub → Cloudways)
+Every push to `main` runs `.github/workflows/deploy.yml`, which checks PHP syntax and then asks the
+Cloudways API to `git pull` the new code onto the server. Set up once:
+1. Cloudways → Application → **Deployment via Git**: connect this repository (deploy key) and do the first deployment.
+2. Cloudways → **API Integration** → **Create Access Token** (Limited Access).
+3. GitHub → repository **Settings → Secrets and variables → Actions** → add `CLOUDWAYS_API_TOKEN`,
+   `CLOUDWAYS_SERVER_ID`, `CLOUDWAYS_APP_ID`, `CLOUDWAYS_GIT_URL`.
+4. Push to `main` (or run the workflow from the **Actions** tab) and check the run is green.
+
 ## Notes
 - PHP extensions needed: `pdo_mysql`, `curl`, `gd` (for PNG QR codes — falls back to SVG), `mbstring`.
 - QR library: chillerlan/php-qrcode (MIT) bundled in `lib/vendor` — no Composer needed.

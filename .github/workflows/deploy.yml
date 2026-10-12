@@ -1,0 +1,71 @@
+# Automatically deploys the `main` branch to Cloudways after every push.
+#
+# It asks Cloudways (via its API) to run "git pull" on the server — the same
+# thing as clicking "Pull" under Application → Deployment via Git.
+#
+# Required repository secrets (GitHub → Settings → Secrets and variables → Actions):
+#   CLOUDWAYS_API_TOKEN   API Access Token (Cloudways → API Integration → Create Access Token)
+#   CLOUDWAYS_SERVER_ID   numeric server id (from the Cloudways URL)
+#   CLOUDWAYS_APP_ID      numeric application id (from the Cloudways URL)
+#   CLOUDWAYS_GIT_URL     SSH URL of this repo, e.g. git@github.com:USER/REPO.git
+# Optional:
+#   CLOUDWAYS_DEPLOY_PATH sub-folder inside public_html (leave unset to deploy to public_html)
+#
+# Secrets are never shown in logs and are not available to pull requests from forks.
+
+name: Deploy to Cloudways
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # lets you re-run a deploy manually from the Actions tab
+
+concurrency:
+  group: cloudways-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Check PHP syntax before deploying
+        run: |
+          set -e
+          find . -name '*.php' -not -path './lib/*' -print0 | xargs -0 -n1 php -l > /dev/null
+          echo "PHP syntax OK"
+
+      - name: Trigger Cloudways git pull
+        env:
+          CW_TOKEN: ${{ secrets.CLOUDWAYS_API_TOKEN }}
+          CW_SERVER_ID: ${{ secrets.CLOUDWAYS_SERVER_ID }}
+          CW_APP_ID: ${{ secrets.CLOUDWAYS_APP_ID }}
+          CW_GIT_URL: ${{ secrets.CLOUDWAYS_GIT_URL }}
+          CW_DEPLOY_PATH: ${{ secrets.CLOUDWAYS_DEPLOY_PATH }}
+        run: |
+          set -e
+          if [ -z "$CW_TOKEN" ] || [ -z "$CW_SERVER_ID" ] || [ -z "$CW_APP_ID" ] || [ -z "$CW_GIT_URL" ]; then
+            echo "::error::Cloudways secrets are not set — see the comments at the top of this file."
+            exit 1
+          fi
+          ARGS=(--data-urlencode "server_id=$CW_SERVER_ID"
+                --data-urlencode "app_id=$CW_APP_ID"
+                --data-urlencode "git_url=$CW_GIT_URL"
+                --data-urlencode "branch_name=main")
+          if [ -n "$CW_DEPLOY_PATH" ]; then ARGS+=(--data-urlencode "deploy_path=$CW_DEPLOY_PATH"); fi
+
+          HTTP=$(curl -sS -o response.json -w "%{http_code}" -X POST \
+            "https://api.cloudways.com/api/v1/git/pull" \
+            -H "Authorization: Bearer $CW_TOKEN" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            "${ARGS[@]}")
+
+          echo "Cloudways responded with HTTP $HTTP"
+          if [ "$HTTP" -lt 200 ] || [ "$HTTP" -ge 300 ]; then
+            echo "::error::Deployment request failed (HTTP $HTTP)."
+            exit 1
+          fi
+          echo "Deployment started. Cloudways is pulling the latest code from main."
