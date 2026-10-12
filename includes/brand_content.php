@@ -62,7 +62,7 @@ $bcTel = function ($p) { return '+1' . preg_replace('/\D/', '', $p); };
   <section class="bc-section">
     <div class="row g-3">
       <?php foreach ($team as $t): ?>
-      <div class="col-md-6">
+      <div class="col-12">
         <div class="bc-person">
           <div class="bc-name"><?= e($t['name']) ?></div>
           <div class="bc-title"><?= e($t['title']) ?></div>

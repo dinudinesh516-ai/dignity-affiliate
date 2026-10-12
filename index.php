@@ -38,5 +38,7 @@ include __DIR__ . '/includes/header.php';
 </div>
 </div>
 
+<div class="narrow">
 <?php $bcProgram = 'open'; $bcFlyerLink = true; include __DIR__ . '/includes/brand_content.php'; ?>
+</div>
 <?php include __DIR__ . '/includes/footer.php'; ?>
