@@ -43,6 +43,7 @@ $pageTitle = 'Sign in';
 $area = 'public';
 include __DIR__ . '/includes/header.php';
 ?>
+<a href="<?= url() ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back</a>
 <div class="text-center mb-4">
   <h1 class="page-title">Welcome back</h1>
   <p class="text-muted mb-0">Sign in to your affiliate or admin account</p>

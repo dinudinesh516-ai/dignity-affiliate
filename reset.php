@@ -30,6 +30,7 @@ $pageTitle = $isSetup ? 'Set your password' : 'Reset password';
 $area = 'public';
 include __DIR__ . '/includes/header.php';
 ?>
+<a href="<?= url('login.php') ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back to sign in</a>
 <div class="text-center mb-4">
   <h1 class="page-title"><?= e($pageTitle) ?></h1>
   <?php if ($t): ?><p class="text-muted mb-0">for <?= e($t['email']) ?></p><?php endif; ?>

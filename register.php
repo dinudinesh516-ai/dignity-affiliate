@@ -45,6 +45,7 @@ $pageTitle = 'Register as an agent';
 $area = 'public';
 include __DIR__ . '/includes/header.php';
 ?>
+<a href="<?= url() ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back</a>
 <div class="text-center mb-4">
   <h1 class="page-title">Become an Agent</h1>
   <p class="text-muted mb-0">Earn <?= e($rate) ?>% on every client you refer</p>

@@ -33,6 +33,7 @@ $pageTitle = 'Register as a Client';
 $area = 'public';
 include __DIR__ . '/includes/header.php';
 ?>
+<a href="<?= url() ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back</a>
 <?php if ($done): ?>
   <div class="auth-card text-center">
     <i class="bi bi-gem text-gold" style="font-size:2.8rem"></i>
@@ -47,7 +48,6 @@ include __DIR__ . '/includes/header.php';
     <div class="mt-3 small text-muted"><i class="bi bi-telephone"></i> <?= e(setting('company_phone', '')) ?></div>
   </div>
 <?php else: ?>
-  <a href="<?= url() ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back</a>
   <div class="text-center mb-4">
     <div class="hero pb-0 pt-0"><div class="eyebrow mb-2">Welcome to Dignity Jewels</div></div>
     <h1 class="page-title">Let's create something beautiful</h1>

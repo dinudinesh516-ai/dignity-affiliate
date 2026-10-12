@@ -21,6 +21,7 @@ $pageTitle = 'Forgot password';
 $area = 'public';
 include __DIR__ . '/includes/header.php';
 ?>
+<a href="<?= url('login.php') ?>" class="back-link"><i class="bi bi-arrow-left"></i> Back to sign in</a>
 <div class="text-center mb-4">
   <h1 class="page-title">Forgot password?</h1>
   <p class="text-muted mb-0">We'll email you a link to reset it.</p>
@@ -43,5 +44,4 @@ include __DIR__ . '/includes/header.php';
   </form>
   <?php endif; ?>
 </div>
-<p class="text-center mt-4 mb-0"><a href="<?= url('login.php') ?>"><i class="bi bi-arrow-left"></i> Back to sign in</a></p>
 <?php include __DIR__ . '/includes/footer.php'; ?>
